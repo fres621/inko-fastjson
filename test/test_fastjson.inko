@@ -1,0 +1,29 @@
+import std.test (Tests)
+import fastjson (obj, arr)
+
+fn pub tests(t: mut Tests) {
+  t.test('Profile object', fn (t) {
+    let profile = obj
+      .str("name", "John")
+      .int("age", 25)
+      .arr("hobbies", arr
+          .str("programming")
+          .str("swimming")
+      ).to_string
+    t.equal(profile, '{"name":"John","age":25,"hobbies":["programming","swimming"]}')
+  })
+  t.test('Nested objects', fn (t) {
+    let city = obj
+    .obj("library", obj
+        .str("name", "City Library")
+        .obj("branch", obj
+            .str("name", "Main Branch")
+            .obj("book", obj
+                .str("title", "1984")
+                .str("author", "George Orwell")
+            )
+        )
+    ).to_string
+    t.equal(city, '{"library":{"name":"City Library","branch":{"name":"Main Branch","book":{"title":"1984","author":"George Orwell"}}}}')
+  })
+}

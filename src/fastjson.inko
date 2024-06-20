@@ -1,0 +1,126 @@
+# FastJSON
+#
+# Creating big objects using std::json was a bit painful so I hope this makes it better
+# @example
+# import fastjson(obj, arr)
+# let my_object = obj.str("name", "John").int("age", 25).arr("hobbies", arr.str("programming").str("swimming")).to_string
+import std.string(ToString, StringBuffer)
+
+fn pub obj -> FastJSON {
+  FastJSON.new
+}
+
+fn pub arr -> FastArray {
+  FastArray.new
+}
+
+fn sanitise(str: String) -> String {
+  str.replace('"', '\\"')
+}
+
+fn key(key: String) -> String {
+  '"' + sanitise(key) + '":'
+}
+
+class pub FastArray {
+  let @buf: StringBuffer
+
+  fn mut add(str: String) {
+    if @buf.size > 0 {
+      @buf.push(",")
+    }
+    @buf.push(str)
+  }
+
+  fn pub move str(val: String) -> FastArray {
+    add('"' + sanitise(val) + '"')
+    self
+  }
+
+  fn pub move int(val: Int) -> FastArray {
+    add(val.to_string)
+    self
+  }
+
+  fn pub move float(val: Float) -> FastArray {
+    add(val.to_string)
+    self
+  }
+
+  fn pub move obj(val: FastJSON) -> FastArray {
+    add(val.to_string)
+    self
+  }
+
+  fn pub move arr(val: FastArray) -> FastArray {
+    add(val.to_string)
+    self
+  }
+
+  fn pub move null -> FastArray {
+    add('null')
+    self
+  }
+
+
+  fn pub static new -> FastArray {
+    FastArray(StringBuffer.new)
+  }
+}
+
+impl ToString for FastArray {
+  fn pub to_string -> String {
+    "[" + @buf.to_string + "]"
+  }
+}
+
+class pub FastJSON {
+  let @buf: StringBuffer
+
+  fn mut add(str: String) {
+    if @buf.size > 0 {
+      @buf.push(",")
+    }
+    @buf.push(str)
+  }
+
+  fn pub move str(key: String, val: String) -> FastJSON {
+    add(key(key) + '"' + sanitise(val) + '"')
+    self
+  }
+
+  fn pub move int(key: String, val: Int) -> FastJSON {
+    add(key(key) + val.to_string)
+    self
+  }
+
+  fn pub move float(key: String, val: Float) -> FastJSON {
+    add(key(key) + val.to_string)
+    self
+  }
+
+  fn pub move obj(key: String, val: FastJSON) -> FastJSON {
+    add(key(key) + val.to_string)
+    self
+  }
+
+  fn pub move arr(key: String, val: FastArray) -> FastJSON {
+    add(key(key) + val.to_string)
+    self
+  }
+
+  fn pub move null(key: String) -> FastJSON {
+    add(key(key) + 'null')
+    self
+  }
+
+  fn pub static new -> FastJSON {
+    FastJSON(StringBuffer.new)
+  }
+}
+
+impl ToString for FastJSON {
+  fn pub to_string -> String {
+    "{" + @buf.to_string + "}"
+  }
+}
